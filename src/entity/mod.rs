@@ -1,6 +1,5 @@
-use Position;
+use component::Component;
 
-#[derive(Debug)]
-pub(crate) struct Character {
-    pub position: Position
+pub struct Character<T> {
+    pub components: Vec<Component::<T>>,
 }
