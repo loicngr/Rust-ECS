@@ -1,112 +1,100 @@
-use std::fmt::{Debug};
+use std::any::{Any, TypeId};
+use std::convert::TryInto;
+use std::ops::Deref;
 
-enum EntityEnum {
-    Character
-}
+trait Component {}
 
 enum ComponentEnum {
-    Position
+    Position,
+    Size
 }
 
-trait ComponentTrait {}
-trait EntityTrait {
-    fn len(&self) -> usize;
-    fn id(&self) -> usize;
-    fn components(&self) -> &Vec<Box<dyn ComponentTrait>>;
-    fn add_component(&mut self, component_enum: ComponentEnum);
-}
-
-struct PositionComponent {
+// Position Component
+#[derive(PartialEq, PartialOrd)]
+struct Position {
     x: i32,
     y: i32
 }
 
-impl PositionComponent {
-    fn new(x: i32, y: i32) -> Self {
-        PositionComponent { x, y }
-    }
+// Size Component
+#[derive(PartialEq, PartialOrd)]
+struct Size {
+    height: i32,
+    width: i32
 }
 
-impl ComponentTrait for PositionComponent {}
+impl Component for Position {}
+impl Component for Size {}
 
-struct CharacterEntity {
+struct Entity {
     id: usize,
-    components: Vec<Box<dyn ComponentTrait>>,
+    components: Vec<Box<dyn Component>>
 }
 
-impl CharacterEntity {
-    fn new() -> CharacterEntity {
-        CharacterEntity { id: 0, components: vec![] }
+impl Entity {
+    fn new(index: usize) -> Self {
+        Entity { id: index, components: vec![] }
     }
-}
-impl EntityTrait for CharacterEntity {
-    fn len(&self) -> usize {
-        self.components.len()
-    }
-    fn id(&self) -> usize {
-        self.id
-    }
-    fn components(&self) -> &Vec<Box<dyn ComponentTrait>> {
-        self.components.as_ref()
-    }
-    fn add_component(&mut self, component_enum: ComponentEnum) {
-        let component = match component_enum {
-            ComponentEnum::Position => PositionComponent::new(0, 0)
-        };
-
+    
+    fn add_component<T: 'static + Component>(&mut self, component: T) {
         self.components.push(Box::new(component));
     }
 }
 
-impl Debug for dyn EntityTrait {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Entity Components {{{}}}", self.len());
-        write!(f, ", ID {{{}}}", self.id())
-    }
-}
-
 struct EntityStore {
-    entities: Vec<Box<dyn EntityTrait>>,
-    current_index: usize
+    entities: Vec<Entity>,
+    current_index: usize,
 }
-
 impl EntityStore {
-    fn new() -> Self {
+    fn new() -> EntityStore {
         EntityStore { entities: vec![], current_index: 0 }
     }
 
-    fn es_end(&mut self) {
+    fn generate_index(&self) -> usize {
+        unimplemented!();
+    }
+
+    fn end(&mut self) -> &mut Entity {
+        let entity = self.entities.get_mut(self.current_index).unwrap();
         self.current_index = self.current_index + 1;
+        entity
     }
 
-    fn create_entity(&mut self, entity_enum: EntityEnum) -> &mut Self {
-        let mut entity = match entity_enum {
-            EntityEnum::Character => CharacterEntity::new(),
-        };
-        entity.id = self.current_index.clone();
+    fn create_entity(&mut self) -> &mut Self {
+        let mut entity = Entity::new(self.current_index);
+        self.entities.push(entity);
 
-        self.entities.push(Box::new(entity));
         self
     }
 
-    fn get_entity(&mut self, index: usize) -> &mut Box<dyn EntityTrait> {
-        self.entities.get_mut(index).unwrap()
-    }
-
-    fn with_component(&mut self, component: ComponentEnum) -> &mut Self {
-        let entity = self.get_entity(self.current_index);
+    fn with_component<T: 'static + Component>(&mut self, component: T) ->  &mut Self {
+        let mut entity = self.entities.get_mut(self.current_index).unwrap();
         entity.add_component(component);
+
         self
     }
+}
+
+fn get_component(entity: &mut Entity, component: ComponentEnum) {
+    /*let mut component = entity.components
+        .iter_mut()
+        .find(
+            |c|
+                c.type_id() == TypeId::of::<component>()
+        ).unwrap();
+
+    component*/
+    unimplemented!();
 }
 
 fn main() {
     let mut es = EntityStore::new();
 
-    es
-        .create_entity(EntityEnum::Character)
-        .with_component(ComponentEnum::Position)
-        .es_end();
+    let mut entity1 = es
+        .create_entity()
+        .with_component(Position { x: 0, y: 0 })
+        .with_component(Size { height: 10, width: 10 })
+        .end();
 
-    println!("main");
+    //get_component(&mut entity1, ComponentEnum::Position);
 }
