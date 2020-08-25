@@ -1,15 +1,8 @@
-use std::any::Any;
-use std::ops::{Deref, DerefMut};
-use std::fmt::{Pointer, Debug};
-use std::path::Display;
-use std::fmt;
-use std::io::Write;
-use std::borrow::{Borrow, BorrowMut};
+use std::fmt::{Debug};
 
 enum EntityEnum {
     Character
 }
-
 
 enum ComponentEnum {
     Position
@@ -101,9 +94,8 @@ impl EntityStore {
     }
 
     fn with_component(&mut self, component: ComponentEnum) -> &mut Self {
-        let mut entity = self.get_entity(self.current_index);
+        let entity = self.get_entity(self.current_index);
         entity.add_component(component);
-        println!("{:?}", entity);
         self
     }
 }
