@@ -1,10 +1,3 @@
-enum ComponentEnum {
-    Position,
-    Size
-}
-
-trait Component {}
-
 // Position Component
 #[derive(PartialEq, PartialOrd, Debug)]
 struct Position {
@@ -19,12 +12,16 @@ struct Size {
     width: i32
 }
 
-impl Component for Position {}
-impl Component for Size {}
+#[derive(PartialEq, PartialOrd, Debug)]
+enum Component {
+    Position(Position),
+    Size(Size)
+}
 
+#[derive(Debug)]
 struct Entity {
     id: usize,
-    components: Vec<Box<dyn Component>>
+    components: Vec<Component>
 }
 
 impl Entity {
@@ -33,8 +30,15 @@ impl Entity {
     }
 
     // Add a component in Entity
-    fn add_component<T: 'static + Component>(&mut self, component: T) {
-        self.components.push(Box::new(component));
+    fn add_component(&mut self, component: Component) {
+        self.components.push(component);
+    }
+
+    fn get_component(
+        &self,
+        predicate: impl Fn(&&Component) -> bool
+    ) -> Option<&Component> {
+        self.components.iter().find(predicate)
     }
 }
 
@@ -66,7 +70,7 @@ impl EntityStore {
     }
 
     // Add component to entity
-    fn with_component<T: 'static + Component>(&mut self, component: T) ->  &mut Self {
+    fn with_component(&mut self, component: Component) ->  &mut Self {
         let mut entity = self.entities.get_mut(self.current_index).unwrap();
         entity.add_component(component);
 
@@ -74,16 +78,36 @@ impl EntityStore {
     }
 }
 
+struct FactoryEntities {
+    es: EntityStore
+}
+impl FactoryEntities {
+    fn new() -> Self {
+        let mut es = EntityStore::new();
+        FactoryEntities { es }
+    }
+
+    fn create_character(&mut self) -> &mut Entity {
+        // Make entity
+        let mut entity = self.es
+            .create_entity()
+            .with_component(Component::Position(Position { x: 0, y: 0 }))
+            .with_component(Component::Size(Size { height: 10, width: 10 }))
+            .end();
+
+        entity
+    }
+}
+
 fn main() {
-    let mut es = EntityStore::new();
+    let mut factory_entities = FactoryEntities::new();
 
-    // Make entity
-    let mut entity1 = es
-        .create_entity()
-        .with_component(Position { x: 0, y: 0 })
-        .with_component(Size { height: 10, width: 10 })
-        .end();
+    let character = factory_entities.create_character();
 
-    // Get entity position component
-    // let component_position_entity1 = entity1.get_component(ComponentEnum::Position);
+    let character_position = character
+        .get_component(|c|
+            if let Component::Position(_) = c { true } else {false}
+        ).unwrap();
+
+    println!("{:?}", character_position);
 }
