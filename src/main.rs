@@ -51,10 +51,6 @@ impl EntityStore {
         EntityStore { entities: vec![], current_index: 0 }
     }
 
-    fn generate_index(&self) -> usize {
-        unimplemented!();
-    }
-
     // Stop creation system and update EntityStore current_index
     fn end(&mut self) -> &mut Entity {
         let entity = self.entities.get_mut(self.current_index).unwrap();
@@ -63,7 +59,7 @@ impl EntityStore {
     }
 
     fn create_entity(&mut self) -> &mut Self {
-        let mut entity = Entity::new(self.current_index);
+        let entity = Entity::new(self.current_index);
         self.entities.push(entity);
 
         self
@@ -71,7 +67,7 @@ impl EntityStore {
 
     // Add component to entity
     fn with_component(&mut self, component: Component) ->  &mut Self {
-        let mut entity = self.entities.get_mut(self.current_index).unwrap();
+        let entity = self.entities.get_mut(self.current_index).unwrap();
         entity.add_component(component);
 
         self
@@ -83,13 +79,13 @@ struct FactoryEntities {
 }
 impl FactoryEntities {
     fn new() -> Self {
-        let mut es = EntityStore::new();
+        let es = EntityStore::new();
         FactoryEntities { es }
     }
 
     fn create_character(&mut self) -> &mut Entity {
         // Make entity
-        let mut entity = self.es
+        let entity = self.es
             .create_entity()
             .with_component(Component::Position(Position { x: 0, y: 0 }))
             .with_component(Component::Size(Size { height: 10, width: 10 }))
@@ -99,15 +95,22 @@ impl FactoryEntities {
     }
 }
 
+
 fn main() {
     let mut factory_entities = FactoryEntities::new();
 
     let character = factory_entities.create_character();
 
-    let character_position = character
-        .get_component(|c|
-            if let Component::Position(_) = c { true } else {false}
-        ).unwrap();
+    let character_position = match character.get_component(|c| if let Component::Position(_) = c { true } else { false }).unwrap() {
+        Component::Position(value) => value,
+        _ => panic!("No position component found.")
+    };
+
+    let character_size = match character.get_component(|c| if let Component::Size(_) = c { true } else { false }).unwrap() {
+        Component::Size(value) => value,
+        _ => panic!("No Size component found.")
+    };
 
     println!("{:?}", character_position);
+    println!("{:?}", character_size);
 }
