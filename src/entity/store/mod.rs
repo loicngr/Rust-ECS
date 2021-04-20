@@ -6,9 +6,13 @@ pub struct EntityStore {
     pub entities: Vec<Entity>,
     pub current_index: usize,
 }
+
 impl EntityStore {
     pub fn new() -> EntityStore {
-        EntityStore { entities: vec![], current_index: 0 }
+        EntityStore {
+            entities: vec![],
+            current_index: 0,
+        }
     }
 
     // Stop creation system and update EntityStore current_index
@@ -26,7 +30,7 @@ impl EntityStore {
     }
 
     // Add component to entity
-    pub fn with_component(&mut self, component: Component) ->  &mut Self {
+    pub fn with_component(&mut self, component: Component) -> &mut Self {
         let entity = self.entities.get_mut(self.current_index).unwrap();
         entity.add_component(component);
 
