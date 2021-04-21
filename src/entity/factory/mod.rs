@@ -1,6 +1,7 @@
 use crate::component::{Component, Health, Position, Size};
 
 use super::{store::EntityStore, Entity};
+use _const::HEALTH;
 
 pub struct FactoryEntities {
     pub es: EntityStore,
@@ -19,7 +20,7 @@ impl FactoryEntities {
             .es
             .create_entity(String::from("player"))
             .with_component(Component::Position(Position { x: 0, y: 0 }))
-            .with_component(Component::Health(Health(100)))
+            .with_component(Component::Health(Health(HEALTH)))
             .with_component(Component::Size(Size {
                 height: 10,
                 width: 10,
@@ -49,7 +50,7 @@ impl FactoryEntities {
             .es
             .create_entity(String::from("enemy"))
             .with_component(Component::Position(Position { x: 0, y: 0 }))
-            .with_component(Component::Health(Health(100)))
+            .with_component(Component::Health(Health(HEALTH)))
             .with_component(Component::Size(Size {
                 height: 10,
                 width: 10,

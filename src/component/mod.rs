@@ -1,5 +1,5 @@
 // Position Component
-#[derive(PartialEq, PartialOrd, Debug)]
+#[derive(PartialEq, PartialOrd, Debug, Copy, Clone)]
 pub struct Position {
     pub x: i32,
     pub y: i32,
@@ -12,7 +12,7 @@ pub struct Size {
     pub width: i32,
 }
 
-#[derive(PartialEq, PartialOrd, Debug)]
+#[derive(PartialEq, PartialOrd, Debug, Copy, Clone)]
 pub struct Health(pub i32);
 
 #[derive(PartialEq, PartialOrd, Debug)]
@@ -20,10 +20,4 @@ pub enum Component {
     Position(Position),
     Size(Size),
     Health(Health),
-}
-
-impl Drop for Position {
-    fn drop(&mut self) {
-        println!("Dropping Position!");
-    }
 }

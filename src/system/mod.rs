@@ -1,6 +1,7 @@
-use crate::{
-    component::Component, component::Health, component::Position, component::Size, entity::Entity,
-};
+pub mod health;
+pub mod position;
+
+use crate::{component::Component, component::Health, component::Size, entity::Entity};
 
 #[allow(dead_code)]
 pub fn get_health(entity: &mut Entity) -> &Health {
@@ -21,51 +22,6 @@ pub fn get_health(entity: &mut Entity) -> &Health {
     entity_health
 }
 
-pub fn move_position(position: &mut Position, new_position: &Position) {
-    position.x = new_position.x;
-    position.y = new_position.y;
-}
-
-pub fn print_position(position: &Position) {
-    println!("{:#?}", position);
-}
-
-pub fn get_position_mutable(entity: &mut Entity) -> &mut Position {
-    let entity_position = match entity
-        .get_component_mutable(|c| {
-            if let Component::Position(_) = c {
-                true
-            } else {
-                false
-            }
-        })
-        .unwrap()
-    {
-        Component::Position(value) => value,
-        _ => panic!("No position component found."),
-    };
-
-    entity_position
-}
-
-pub fn get_position(entity: &Entity) -> &Position {
-    let entity_position = match entity
-        .get_component(|c| {
-            if let Component::Position(_) = c {
-                true
-            } else {
-                false
-            }
-        })
-        .unwrap()
-    {
-        Component::Position(value) => value,
-        _ => panic!("No position component found."),
-    };
-
-    entity_position
-}
-
 #[allow(dead_code)]
 pub fn get_size(entity: &mut Entity) -> &Size {
     let entity_size = match entity
@@ -83,4 +39,8 @@ pub fn get_size(entity: &mut Entity) -> &Size {
     };
 
     entity_size
+}
+
+pub fn print(c: &Component) {
+    println!("{:#?}", c);
 }
